@@ -60,6 +60,14 @@ abstract class DoctrineIntegrationTestCase extends TestCase
     /**
      * @test
      */
+    public function dispaching_zero_messages()
+    {
+        $this->dispatcher->dispatch();
+    }
+
+    /**
+     * @test
+     */
     public function dispatching_messages_results_in_messages_in_the_outbox()
     {
         $message = $this->createMessageFromEvent(new TestEvent('something'));
@@ -82,6 +90,8 @@ abstract class DoctrineIntegrationTestCase extends TestCase
      */
     public function marking_outbox_messages_as_dispatched()
     {
+        // marking zero as dispatched
+        $this->dispatcher->markAsDispatched();
         $message = $this->createMessageFromEvent(new TestEvent('something'));
         $this->dispatcher->dispatch($message);
 
@@ -94,8 +104,6 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $messagesLeftInOutbox = iterator_to_array($this->dispatcher->retrieveNotDispatchedMessages(100));
         $this->assertEmpty($messagesLeftInOutbox);
     }
-
-
 
     /**
      * @test
@@ -110,6 +118,23 @@ abstract class DoctrineIntegrationTestCase extends TestCase
 
         $this->dispatcher->removeFromOutbox();
         $this->dispatcher->removeFromOutbox(...$messagesInOutbox);
+
+        /** @var MessagesInOutbox[] $messagesInOutbox */
+        $messagesLeftInOutbox = iterator_to_array($this->dispatcher->retrieveNotDispatchedMessages(100));
+        $this->assertEmpty($messagesLeftInOutbox);
+    }
+
+    /**
+     * @test
+     */
+    public function deleting_all_outbox_messages()
+    {
+        $message = $this->createMessageFromEvent(new TestEvent('something'));
+        $this->dispatcher->dispatch($message);
+        $message = $this->createMessageFromEvent(new TestEvent('something'));
+        $this->dispatcher->dispatch($message);
+
+        $this->dispatcher->deletedAllMessagesFromOutbox();
 
         /** @var MessagesInOutbox[] $messagesInOutbox */
         $messagesLeftInOutbox = iterator_to_array($this->dispatcher->retrieveNotDispatchedMessages(100));

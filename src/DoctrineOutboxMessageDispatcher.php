@@ -12,6 +12,7 @@ use EventSauce\EventSourcing\Time\Clock;
 use Generator;
 use Ramsey\Uuid\Uuid;
 use function array_map;
+use function array_values;
 use function json_decode;
 
 class DoctrineOutboxMessageDispatcher implements OutboxMessageDispatcher
@@ -69,26 +70,7 @@ class DoctrineOutboxMessageDispatcher implements OutboxMessageDispatcher
             $params[$payloadColumn] = json_encode($payload, $this->jsonEncodeOptions);
         }
         $sql .= join(', ', $values);
-        $this->connection->beginTransaction();
         $this->connection->prepare($sql)->execute($params);
-        $this->connection->commit();
-    }
-
-    /**
-     * @param Statement $stm
-     * @return Generator|int
-     */
-    private function yieldMessagesForResult(Statement $stm)
-    {
-        while ($payload = $stm->fetchColumn()) {
-            $messages = $this->serializer->unserializePayload(json_decode($payload, true));
-            /* @var Message $message */
-            foreach ($messages as $message) {
-                yield $message;
-            }
-        }
-
-        return isset($message) ? $message->header(Header::AGGREGATE_ROOT_VERSION) ?: 0 : 0;
     }
 
     /**
@@ -98,6 +80,7 @@ class DoctrineOutboxMessageDispatcher implements OutboxMessageDispatcher
     public function retrieveNotDispatchedMessages(int $limit): iterable
     {
         $result = $this->connection->createQueryBuilder()->from($this->tableName, 't')->select('t.id', 't.payload')->where('t.dispatched = :dispatched')->setParameter('dispatched', 0)->orderBy('t.time_of_recording', 'ASC')->setMaxResults($limit)->execute();
+
         while ($row = $result->fetch(FetchMode::ASSOCIATIVE)) {
             yield new MessagesInOutbox($row['id'], $this->serializer->unserializePayload(json_decode($row['payload'], true)));
         }
@@ -120,19 +103,23 @@ class DoctrineOutboxMessageDispatcher implements OutboxMessageDispatcher
     public function removeFromOutbox(MessagesInOutbox ...$messages): void
     {
         $ids = $this->getIdsFromOutboxMessages($messages);
+
         if (empty($ids)) {
             return;
         }
+
         $this->connection->createQueryBuilder()
-            ->delete($this->tableName, 't')
-            ->where('t.id IN (:ids)')
-            ->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY)
+            ->delete($this->tableName)
+            ->where('id IN (:ids)')
+            ->setParameter('ids', array_values($ids), Connection::PARAM_STR_ARRAY)
             ->execute();
     }
 
     public function deletedAllMessagesFromOutbox(): void
     {
-        $this->connection->delete($this->tableName);
+        $this->connection->createQueryBuilder()
+            ->delete($this->tableName)
+            ->execute();
     }
 
     /**
