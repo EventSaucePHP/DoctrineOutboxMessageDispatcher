@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace EventSauce\DoctrineMessageRepository;
 
-use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\MessageDispatcher;
-use EventSauce\EventSourcing\PointInTime;
 
 interface OutboxMessageDispatcher extends MessageDispatcher
 {
