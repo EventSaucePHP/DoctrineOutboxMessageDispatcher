@@ -2,12 +2,14 @@
 
 namespace EventSauce\DoctrineMessageRepository\Tests;
 
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use EventSauce\DoctrineMessageRepository\DoctrineOutboxMessageDispatcher;
 use EventSauce\DoctrineMessageRepository\MessagesInOutbox;
 use EventSauce\EventSourcing\DefaultHeadersDecorator;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\MessageDecorator;
+use EventSauce\EventSourcing\PointInTime;
 use EventSauce\EventSourcing\Serialization\ConstructingMessageSerializer;
 use EventSauce\EventSourcing\Serialization\MessageSerializer;
 use EventSauce\EventSourcing\Time\Clock;
@@ -44,11 +46,11 @@ abstract class DoctrineIntegrationTestCase extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->decorator = new DefaultHeadersDecorator();
+        $this->clock = new TestClock();
+        $this->decorator = new DefaultHeadersDecorator(null, $this->clock);
         $connection = $this->connection();
         $connection->exec('TRUNCATE TABLE messages_outbox');
         $serializer = new ConstructingMessageSerializer();
-        $this->clock = new TestClock();
         $this->dispatcher = $this->messageDispatcher($connection, $this->clock, $serializer, 'messages_outbox');
     }
 
@@ -77,9 +79,13 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         $messagesInOutbox = iterator_to_array($this->dispatcher->retrieveNotDispatchedMessages(100));
 
         $this->assertCount(1, $messagesInOutbox);
+        $messageInOutbox = $messagesInOutbox[0];
 
-        /** @var Message[] $actualMessages */
-        $actualMessages = iterator_to_array($messagesInOutbox[0]->messages());
+        $this->assertInstanceOf(PointInTime::class, $messageInOutbox->timeOfRecording());
+        $this->assertEquals($this->clock->pointInTime()->toString(), $messageInOutbox->timeOfRecording()->toString());
+        $this->assertNull($messageInOutbox->timeOfDispatching());
+        /** @var MessagesInOutbox $actualMessages */
+        $actualMessages = iterator_to_array($messageInOutbox->messages());
 
         $this->assertCount(1, $actualMessages);
         $this->assertEquals(new TestEvent('something'), $actualMessages[0]->event());
