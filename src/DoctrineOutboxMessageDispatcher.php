@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\DBAL\ParameterType;
 use EventSauce\EventSourcing\Header;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\PointInTime;
@@ -89,11 +90,11 @@ class DoctrineOutboxMessageDispatcher implements OutboxMessageDispatcher
     public function retrieveNotDispatchedMessages(int $limit): iterable
     {
         $result = $this->connection->createQueryBuilder()
-            ->from($this->tableName, 't')
-            ->select('t.id', 't.payload', 't.time_of_recording')
-            ->where('t.dispatched = :dispatched')
-            ->setParameter('dispatched', 0)
-            ->orderBy('t.time_of_recording', 'ASC')
+            ->from($this->tableName)
+            ->select('id', 'payload', 'time_of_recording')
+            ->where('dispatched = :dispatched')
+            ->setParameter('dispatched', false, ParameterType::BOOLEAN)
+            ->orderBy('time_of_recording', 'ASC')
             ->setMaxResults($limit)
             ->execute();
 
@@ -111,14 +112,20 @@ class DoctrineOutboxMessageDispatcher implements OutboxMessageDispatcher
     public function markAsDispatched(MessagesInOutbox ...$messages): void
     {
         $ids = $this->getIdsFromOutboxMessages($messages);
+
         if (empty($ids)) {
             return;
         }
-        $this->connection->createQueryBuilder()
-            ->update($this->tableName, 't')
-            ->set('t.time_of_dispatching', ':time_of_dispatching')
+
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder
+            ->update($this->tableName)
+            ->where('id IN (:ids)')
+            ->setParameter('ids', array_values($ids), Connection::PARAM_STR_ARRAY)
+            ->set('time_of_dispatching', ':time_of_dispatching')
             ->setParameter('time_of_dispatching', $this->clock->pointInTime()->toString())
-            ->set('t.dispatched', true)
+            ->set('dispatched', ':dispatched')
+            ->setParameter('dispatched', true, ParameterType::BOOLEAN)
             ->execute();
     }
 

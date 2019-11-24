@@ -16,6 +16,7 @@ use EventSauce\EventSourcing\Time\Clock;
 use EventSauce\EventSourcing\Time\TestClock;
 use PHPUnit\Framework\TestCase;
 use function iterator_to_array;
+use function var_dump;
 
 abstract class DoctrineIntegrationTestCase extends TestCase
 {
@@ -36,12 +37,14 @@ abstract class DoctrineIntegrationTestCase extends TestCase
 
     abstract protected function connection(): Connection;
 
-    abstract protected function messageDispatcher(
+    protected function messageDispatcher(
         Connection $connection,
         Clock $clock,
         MessageSerializer $serializer,
         string $tableName
-    ): DoctrineOutboxMessageDispatcher;
+    ): DoctrineOutboxMessageDispatcher {
+        return new DoctrineOutboxMessageDispatcher($connection, $clock, $serializer, $tableName);
+    }
 
     protected function setUp()
     {

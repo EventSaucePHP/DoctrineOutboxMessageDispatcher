@@ -6,19 +6,28 @@ include __DIR__ . '/../vendor/autoload.php';
 
 /** @var Connection $connection */
 $connection = include __DIR__ . '/postgres-connection.php';
-$connection->exec("DROP TABLE IF EXISTS domain_messages");
-$connection->exec("CREATE TABLE domain_messages (
-    event_id UUID NOT NULL,
-    event_type VARCHAR(255) NOT NULL,
-    aggregate_root_id UUID NOT NULL,
-    aggregate_root_version INTEGER NOT NULL,
-    time_of_recording TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+$connection->exec("DROP TABLE IF EXISTS messages_outbox");
+/**
+ * id VARCHAR(36) NOT NULL,
+payload JSON NOT NULL,
+time_of_recording DATETIME(6) NOT NULL,
+dispatched BOOLEAN NOT NULL,
+time_of_dispatching DATETIME(6) NULL,
+INDEX dispatched (dispatched),
+INDEX not_dispatched_ordered_by_time (dispatched, time_of_recording ASC)
+ */
+
+$connection->exec("CREATE TABLE messages_outbox (
+    id UUID NOT NULL,
     payload JSON NOT NULL,
-    PRIMARY KEY(event_id)
+    dispatched BOOLEAN NOT NULL,
+    time_of_recording TIMESTAMP(6) NOT NULL,
+    time_of_dispatching TIMESTAMP(6) NULL,
+    PRIMARY KEY(id)
 )");
-$connection->exec("CREATE UNIQUE INDEX
+$connection->exec("CREATE INDEX
     IF NOT EXISTS
-    unique_id_and_version on domain_messages (
-        aggregate_root_id,
-        aggregate_root_version ASC
+    not_dispatched_ordered_by_time on messages_outbox (
+        dispatched,
+        time_of_recording ASC
     )");
