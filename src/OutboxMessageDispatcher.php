@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace EventSauce\DoctrineMessageRepository;
+namespace EventSauce\DoctrineOutboxMessageDispatcher;
 
 use EventSauce\EventSourcing\MessageDispatcher;
 

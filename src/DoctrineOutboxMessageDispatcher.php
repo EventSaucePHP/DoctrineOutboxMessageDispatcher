@@ -1,6 +1,6 @@
 <?php
 
-namespace EventSauce\DoctrineMessageRepository;
+namespace EventSauce\DoctrineOutboxMessageDispatcher;
 
 use DateTimeImmutable;
 use DateTimeZone;

@@ -1,11 +1,11 @@
 <?php
 
-namespace EventSauce\DoctrineMessageRepository\Tests;
+namespace EventSauce\DoctrineOutboxMessageDispatcher\Tests;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
-use EventSauce\DoctrineMessageRepository\DoctrineOutboxMessageDispatcher;
-use EventSauce\DoctrineMessageRepository\MessagesInOutbox;
+use EventSauce\DoctrineOutboxMessageDispatcher\DoctrineOutboxMessageDispatcher;
+use EventSauce\DoctrineOutboxMessageDispatcher\MessagesInOutbox;
 use EventSauce\EventSourcing\DefaultHeadersDecorator;
 use EventSauce\EventSourcing\Message;
 use EventSauce\EventSourcing\MessageDecorator;

@@ -4,12 +4,12 @@
     "type": "library",
     "autoload": {
         "psr-4": {
-            "EventSauce\\DoctrineMessageRepository\\": "src/"
+            "EventSauce\\DoctrineOutboxMessageDispatcher\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "EventSauce\\DoctrineMessageRepository\\Tests\\": "tests"
+            "EventSauce\\DoctrineOutboxMessageDispatcher\\Tests\\": "tests"
         }
     },
     "require": {

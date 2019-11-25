@@ -1,6 +1,6 @@
 <?php
 
-namespace EventSauce\DoctrineMessageRepository\Tests;
+namespace EventSauce\DoctrineOutboxMessageDispatcher\Tests;
 
 use Doctrine\DBAL\Connection;
 
