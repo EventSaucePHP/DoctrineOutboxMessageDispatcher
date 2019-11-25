@@ -49,7 +49,10 @@ $destinationDispatcher = new SynchronousMessageDispatcher();
 $messagesInOutbox = $dispatcher->retrieveNotDispatchedMessages(100);
 
 foreach ($messagesInOutbox as $messageInOutbox) {
+    
+    // One message in the outbox can result in N number of messages to dispatch
     $destinationDispatcher->dispatch(...iterator_to_array($messageInOutbox->messages()));
+    
     // Mark messages as dispatched
     $dispatcher->markAsDispatched($messagesInOutbox);
     
