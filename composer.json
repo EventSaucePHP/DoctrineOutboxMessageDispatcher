@@ -2,6 +2,23 @@
     "name": "eventsauce/doctrine-outbox-message-dispatcher",
     "description": "Doctrine Message Repository for EventSauce",
     "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Frank de Jonge",
+            "email": "info@frenky.net"
+        }
+    ],
+    "require": {
+        "php": "^7.2|^8.0",
+        "ext-json": "*",
+        "eventsauce/eventsauce": "^0.7.0|^0.8.0",
+        "doctrine/dbal": "^2.5",
+        "ramsey/uuid": "^3.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    },
     "autoload": {
         "psr-4": {
             "EventSauce\\DoctrineOutboxMessageDispatcher\\": "src/"
@@ -11,21 +28,5 @@
         "psr-4": {
             "EventSauce\\DoctrineOutboxMessageDispatcher\\Tests\\": "tests"
         }
-    },
-    "require": {
-        "eventsauce/eventsauce": "^0.7.0 || ^0.8.0",
-        "doctrine/dbal": "^2.5",
-        "ramsey/uuid": "^3.6",
-        "ext-json": "*"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^8.5|^9.5"
-    },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Frank de Jonge",
-            "email": "info@frenky.net"
-        }
-    ]
+    }
 }
