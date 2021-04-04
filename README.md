@@ -1,6 +1,6 @@
 # Doctrine Message Dispatcher for EventSauce
 
-[![Build Status](https://travis-ci.org/EventSaucePHP/DoctrineOutboxMessageDispatcher.svg?branch=master)](https://travis-ci.org/EventSaucePHP/DoctrineMessageRepository)
+[![Build Status](https://github.com/EventSaucePHP/DoctrineOutboxMessageDispatcher/workflows/Tests/badge.svg)](https://github.com/EventSaucePHP/DoctrineOutboxMessageDispatcher/actions)
 
 ```bash
 composer require eventsauce/doctrine-outbox-message-dispatcher
