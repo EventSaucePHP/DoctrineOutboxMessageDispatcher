@@ -46,9 +46,10 @@ abstract class DoctrineIntegrationTestCase extends TestCase
         return new DoctrineOutboxMessageDispatcher($connection, $clock, $serializer, $tableName);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
+
         $this->clock = new TestClock();
         $this->decorator = new DefaultHeadersDecorator(null, $this->clock);
         $connection = $this->connection();
