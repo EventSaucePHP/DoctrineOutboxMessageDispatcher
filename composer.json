@@ -1,6 +1,6 @@
 {
     "name": "eventsauce/doctrine-outbox-message-dispatcher",
-    "description": "Doctrine Message Repository for EventSauce",
+    "description": "Doctrine Message Dispatcher for EventSauce",
     "type": "library",
     "license": "MIT",
     "authors": [
